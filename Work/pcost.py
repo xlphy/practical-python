@@ -19,17 +19,18 @@ def portfolio_cost2(filename):
 
 import csv
 def portfolio_cost(csv_filename):
-    "calculate the cost of a portfolio given by filename in Data folder"
-    f = open(f"Data/{csv_filename}")
-    rows = csv.reader(f)
-    headers = next(rows)
+    "calculate the cost (share * price) of a portfolio given by filename in Data folder"
     total = 0
-    for r in rows:
-        try:
-            total += int(r[1]) * float(r[2])
-        except ValueError:
-            print(f"parse row with csv.reader failed, row={r}, skip to the next.") 
-    f.close()
+    with open(f"Data/{csv_filename}", 'rt') as f:
+        rows = csv.reader(f)
+        headers = next(rows)
+        # make use of headers
+        for rowno, row in enumerate(rows, start=1):
+            record = dict(zip(headers, row))
+            try:
+                total += int(record['shares']) * float(record['price'])
+            except ValueError:
+                print(f"Row {rowno}: Bad row: {row}")
     return total
 
 import sys
