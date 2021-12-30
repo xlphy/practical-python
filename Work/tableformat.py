@@ -54,6 +54,8 @@ class HTMLTableFormatter(TableFormatter):
             print(f"<td>{d}</td>", end='')
         print('</tr>')
 
+class FormatError(Exception):
+    pass
 
 def create_formatter(fmt):
     '''
@@ -66,13 +68,13 @@ def create_formatter(fmt):
         return CSVTableFormatter()
     elif fmt == 'html':
         return HTMLTableFormatter()
-
+    else:
+        raise FormatError('Unknown table format %s' % fmt)
 
 def print_table(table, column_names, formatter):
     formatter.headings(column_names)
     for row in table:
         row = [str(getattr(row, col)) for col in column_names]
         formatter.row(row)
-
 
 
