@@ -4,13 +4,15 @@
 # read current prices and compute portfolio current values and loss/gain
 
 import fileparse
-import stock
+from stock import Stock
+from portfolio import Portfolio
 import tableformat
+
 
 def read_portfolio(filename):
     with open(filename, 'rt') as f:
         port = fileparse.parse_csv(f, types=[str, int, float], select=['name', 'shares', 'price'])
-    return [stock.Stock(d['name'], d['shares'], d['price']) for d in port]
+    return Portfolio([Stock(d['name'], d['shares'], d['price']) for d in port])
 
 def read_prices(filename):
     with open(filename, 'rt') as f:
