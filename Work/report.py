@@ -3,49 +3,16 @@
 # Exercise 2.4
 # read current prices and compute portfolio current values and loss/gain
 
-import csv
+import fileparse
 
 def read_portfolio(filename):
-    portfolio = [] # list of tuples
-    with open(f"Data/{filename}", 'rt') as f:
-        rows = csv.reader(f)
-        headers = next(rows)
-        for row in rows:
-            #symbol name, number of shares, price
-            try:
-                portfolio.append((row[0], int(row[1]), float(row[2])))
-            except Exception as e:
-                print(f"parsing row has errors, skip it, row = {row}, error = {e}")
-    return portfolio
-
-def read_portfolio_dict(filename):
-    portfolio = [] # list of dicts
-    with open(f"Data/{filename}", 'rt') as f:
-        rows = csv.reader(f)
-        headers = next(rows)
-        for row in rows:
-            try:
-                holding = dict(zip(headers, row))
-                holding['shares'] = int(holding['shares'])
-                holding['price'] = float(holding['price'])
-                portfolio.append(holding)
-            except Exception as e:
-                print(f"parsing row has errors, skip it, row = {row}, error = {e}")
-    return portfolio
+    return fileparse.parse_csv(filename, types=[str, int, float], select=['name', 'shares', 'price'])
 
 def read_prices(filename):
-    prices = {}
-    with open(f"Data/{filename}", 'rt') as f:
-        rows = csv.reader(f)
-        for row in rows:
-            try:
-                prices[row[0]] = float(row[1])
-            except Exception as e:
-                print(f"parsing row has errors, skip it, row = {row}, error = {e}")
-    return prices
+    return dict(fileparse.parse_csv(filename, types=[str,float], has_headers=False))
 
 def calc_loss_gain(portfolio_filename, price_filename):
-    portfolio = read_portfolio_dict(portfolio_filename)
+    portfolio = read_portfolio(portfolio_filename)
     prices = read_prices(price_filename)
     cur_value = 0
     pnl = 0
@@ -64,18 +31,28 @@ def make_report(portfolio, prices):
         report.append((pos['name'], pos['shares'], prices[pos['name']], prices[pos['name']] - pos['price']))
     return report
 
-# format output
-portfolio = read_portfolio_dict('portfolio.csv')
-prices = read_prices('prices.csv')
+def print_report(report):
+    '''format output'''
+    headers = ('Name', 'Shares', 'Price', 'Change')
+    print("%10s %10s %10s %10s" % headers)
+    print(('-'*10 + ' ') * len(headers))
+    for name, shares, price, change in report:
+        p = f"${price:.2f}"
+        print(f"{name:>10s} {shares:>10d} {p:>10s} {change:>10.2f}")
 
-data = make_report(portfolio, prices)
-headers = ('Name', 'Shares', 'Price', 'Change')
+def portfolio_report(portfolio_filename, prices_filename):
+    portfolio = read_portfolio(portfolio_filename)
+    prices = read_prices(prices_filename)
+    report = make_report(portfolio, prices)
+    print_report(report)
 
-print("%10s %10s %10s %10s" % headers)
-print(('-'*10 + ' ') * len(headers))
-for name, shares, price, change in data:
-   # print(f"{name:>10s} {shares:>10d} {price:>10.2f} {change:>10.2f}")
-   # add '$' in front of price
-    p = f"${price:.2f}"
-    print(f"{name:>10s} {shares:>10d} {p:>10s} {change:>10.2f}")
+def main(argv):
+    if len(argv) != 3:
+        raise SystemExit(f"Usage: {argv[0]} " "portfile pricefile")
+    portfile, pricefile = argv[1], argv[2]
+    portfolio_report(portfile, pricefile)
+    
+if __name__ == '__main__':
+    import sys
+    main(sys.argv)
 
