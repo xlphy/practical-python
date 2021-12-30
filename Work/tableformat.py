@@ -67,3 +67,12 @@ def create_formatter(fmt):
     elif fmt == 'html':
         return HTMLTableFormatter()
 
+
+def print_table(table, column_names, formatter):
+    formatter.headings(column_names)
+    for row in table:
+        row = [str(getattr(row, col)) for col in column_names]
+        formatter.row(row)
+
+
+
