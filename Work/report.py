@@ -6,10 +6,14 @@
 import fileparse
 
 def read_portfolio(filename):
-    return fileparse.parse_csv(filename, types=[str, int, float], select=['name', 'shares', 'price'])
+    with open(filename, 'rt') as f:
+        port = fileparse.parse_csv(f, types=[str, int, float], select=['name', 'shares', 'price'])
+    return port
 
 def read_prices(filename):
-    return dict(fileparse.parse_csv(filename, types=[str,float], has_headers=False))
+    with open(filename, 'rt') as f:
+        prices = fileparse.parse_csv(f, types=[str, float], has_headers=False)
+    return dict(prices)
 
 def calc_loss_gain(portfolio_filename, price_filename):
     portfolio = read_portfolio(portfolio_filename)
