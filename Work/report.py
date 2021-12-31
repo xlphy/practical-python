@@ -63,6 +63,11 @@ def main(argv):
     portfolio_report(portfile, pricefile, fmt)
     
 if __name__ == '__main__':
-    import sys
+    import sys, logging
+    logging.basicConfig(
+        filename='report_run.log',
+        filemode='w',
+        level=logging.WARNING,
+    )
     main(sys.argv)
 
